@@ -36,7 +36,11 @@ func main() {
 		var users []*User
 		// findOptions := options.Find()
 		// findOptions.SetLimit(2)
-		cur, err := collection.Find(context.TODO(), bson.M{})
+		ctx := c.Request().Context()
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		cur, err := collection.Find(ctx, bson.M{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -112,11 +116,18 @@ func main() {
 
 		filter := bson.M{"name": name}
 
-		update := bson.M{"$set": bson.M{
-			"name":        newName,
-			"email":       newEmail,
-			"description": newDes},
+		updateObject := bson.M{}
+		if newName != "" {
+			updateObject["name"] = newName
 		}
+		if newEmail != "" {
+			updateObject["email"] = newEmail
+		}
+		if newDes != "" {
+			updateObject["description"] = newDes
+		}
+
+		update := bson.M{"$set": updateObject}
 
 		updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
 		if err != nil {

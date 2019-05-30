@@ -9,9 +9,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/sfreiberg/gotwilio"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Message type is the message type that we need to send
@@ -40,6 +40,7 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hi, Here you can send messages to you favorite ones.")
 	})
+	// e.GET("/", Home)
 
 	e.POST("/new-message", func(c echo.Context) error {
 		to := c.FormValue("to")
@@ -66,7 +67,7 @@ func main() {
 		res, excep, err := twilio.SendSMS(from, to, message, "", "")
 
 		if err != nil || excep != nil {
-			e.Logger.Info("Error in sending sms via twilio")
+			e.Logger.Info("Error in sending sms via twilio", excep, err)
 		} else {
 			e.Logger.Info(res)
 		}
@@ -79,6 +80,7 @@ func main() {
 		fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 		return c.JSON(http.StatusCreated, res)
 	})
+	// e.POST("/new-message", NewMessage)
 
 	e.GET("/messages", func(c echo.Context) error {
 		var messages []*Message
@@ -89,14 +91,15 @@ func main() {
 
 		size, err := collection.Count(ctx, bson.M{})
 		if size == 0 {
-			return c.String(http.StatusNoContent, "Either there are no values or there is some internal error")
 			e.Logger.Info("Some error in finding the messages")
+			return c.String(http.StatusNoContent, "Either there are no values or there is some internal error")
+
 		}
 
 		cur, err := collection.Find(ctx, bson.M{})
 		if err != nil {
-			return c.String(http.StatusInternalServerError, "There is some internal error")
 			e.Logger.Info("Some error in finding the messages")
+			return c.String(http.StatusInternalServerError, "There is some internal error")
 		}
 
 		for cur.Next(context.TODO()) {
@@ -120,6 +123,7 @@ func main() {
 		fmt.Printf("Found multiple messages : %+v\n", messages)
 		return c.JSONPretty(http.StatusOK, messages, " ")
 	})
+	// e.GET("/messages", Messages)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

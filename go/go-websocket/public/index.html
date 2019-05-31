@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>WebSocket</title>
+</head>
+
+<body>
+  <p id="output"></p>
+
+  <script>
+    var loc = window.location;
+    var uri = 'ws:';
+
+    if (loc.protocol === 'https:') {
+      uri = 'wss:';
+    }
+    uri += '//' + loc.host;
+    uri += loc.pathname + 'add';
+
+    ws = new WebSocket(uri)
+
+    ws.onopen = function() {
+      console.log('Connected')
+    }
+
+    // var body = JSON.stringify(
+    //     {
+    //         name: "Pradeep PG",
+    //         email: "pradeep@atlan.com",
+    //         about: "HeyNS"
+    //     }
+    // )
+
+    // ws.onmessage = function(evt) {
+    //   var out = document.getElementById('output');
+    //   out.innerHTML += evt.data + '<br>';
+    // }
+
+    ws.send(
+        {
+            name: "Pradeep PG",
+            email: "pradeep@atlan.com",
+            about: "HeyNS"
+        }
+    )
+
+  </script>
+</body>
+
+</html>

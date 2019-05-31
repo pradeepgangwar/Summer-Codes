@@ -36,14 +36,5 @@ func (r *MongoRepo) FindAll(ctx context.Context) []*user.Model {
 	var users []*user.Model
 	r.Collection.Find(nil).All(&users)
 
-	//
-
-	// user1 := &user.Model{}
-
-	// for results.Next(user1) {
-	// 	users = append(users, user1)
-	// 	user1 = &user.Model{}
-	// }
-
 	return users
 }

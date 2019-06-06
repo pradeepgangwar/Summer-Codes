@@ -23,8 +23,8 @@ func NewController(config *boot.Config, repo *repo.MongoRepo) *Controller {
 	}
 }
 
-// Socket : Create a new socke
-func (c *Controller) Socket(ctx context.Context, user user.Model) error {
+// NewUser : Create a user
+func (c *Controller) NewUser(ctx context.Context, user user.Model) error {
 	ctx, cancel := context.WithTimeout(ctx, c.Timeout)
 	defer cancel()
 
@@ -32,3 +32,27 @@ func (c *Controller) Socket(ctx context.Context, user user.Model) error {
 
 	return err
 }
+
+// AllUser : Returns all users
+func (c *Controller) AllUser(ctx context.Context) []*user.Model {
+	ctx, cancel := context.WithTimeout(ctx, c.Timeout)
+	defer cancel()
+
+	users := c.Repo.FindAll(ctx)
+
+	return users
+}
+
+// GetChange : Chacks for change in the collection
+// func (c *Controller) GetChange(ctx context.Context) ([]*user.Model, error) {
+// 	ctx, cancel := context.WithTimeout(ctx, c.Timeout)
+// 	defer cancel()
+
+// 	users, err := c.Repo.TrackChange(ctx)
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return users, nil
+// }

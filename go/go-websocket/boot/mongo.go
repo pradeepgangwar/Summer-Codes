@@ -2,7 +2,6 @@ package boot
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/globalsign/mgo"
 )
@@ -13,16 +12,17 @@ func SetupMongo(c *Config) (*mgo.Session, error) {
 	/** Initialize the database connections **/
 	//////////////////////////////////////////
 
-	DialInfo := &mgo.DialInfo{
-		AppName:  "go-websocket",
-		Database: c.MongoDatabaseName,
-		Addrs:    []string{c.MongoHost},
-		Timeout:  time.Duration(c.MongoTimeout) * time.Second,
-		Username: c.MongoUserName,
-		Password: c.MongoPassword,
-	}
+	// DialInfo := &mgo.DialInfo{
+	// 	AppName:  "go-websocket",
+	// 	Database: c.MongoDatabaseName,
+	// 	Addrs:    []string{c.MongoHost},
+	// 	Timeout:  time.Duration(c.MongoTimeout) * time.Second,
+	// 	Direct:   false,
+	// 	// Username: c.MongoUserName,
+	// 	// Password: c.MongoPassword,
+	// }
 
-	connection, err := mgo.DialWithInfo(DialInfo)
+	connection, err := mgo.Dial("mongodb://localhost:27019/?replicaSet=rs0")
 	if err != nil {
 		return nil, err
 	}

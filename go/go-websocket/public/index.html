@@ -8,43 +8,80 @@
 
 <body>
   <p id="output"></p>
+  <form type="submit">
+    Name:<br>
+    <input type="text" id="name"><br>
+    Email:<br>
+    <input type="text" id="email"><br>
+    About:<br>
+    <input type="text" id="about"><br>
+    <input type="submit" id="postusers" value="Submit">
+  </form>
+
+  <ul id="users-list">
+
+  </ul>
 
   <script>
-    var loc = window.location;
-    var uri = 'ws:';
 
-    if (loc.protocol === 'https:') {
-      uri = 'wss:';
-    }
-    uri += '//' + loc.host;
-    uri += loc.pathname + 'add';
+    window.addEventListener("load", function(evt) {
+      
+      var ws;
+      var loc = window.location;
+      var uri = 'ws:';
 
-    ws = new WebSocket(uri)
+      if (loc.protocol === 'https:') {
+        uri = 'wss:';
+      }
+      uri += '//' + loc.host;
+      uri += loc.pathname + 'add';
 
-    ws.onopen = function() {
-      console.log('Connected')
-    }
+      ws = new WebSocket(uri)
+    
+      ws.onopen = function() {
+        document.getElementById("output").innerHTML = "Connected to websocket server";
+      }
+      
+      ws.onclose = function(evt) {
+        document.getElementById("output").innerHTML = "Disconnected from websocket server";
+      }
+      
+      ws.onerror = function(evt) {
+        document.getElementById("output").innerHTML = "Error connecting to websocket server";
+      }
 
-    // var body = JSON.stringify(
-    //     {
-    //         name: "Pradeep PG",
-    //         email: "pradeep@atlan.com",
-    //         about: "HeyNS"
-    //     }
-    // )
-
-    // ws.onmessage = function(evt) {
-    //   var out = document.getElementById('output');
-    //   out.innerHTML += evt.data + '<br>';
-    // }
-
-    ws.send(
-        {
-            name: "Pradeep PG",
-            email: "pradeep@atlan.com",
-            about: "HeyNS"
+      ws.onmessage = function(evt) {
+        var userObject = JSON.parse(evt.data);
+        if (userObject.length) {
+          for (var i=0; i<userObject.length; i++) {
+            var node = document.createElement("li");
+            var textnode = document.createTextNode("Name: " + userObject[i].name + " Email: " + userObject[i].email + " About: " + userObject[i].about);
+            node.appendChild(textnode);
+            document.getElementById("users-list").appendChild(node);
+          }
+        } else {
+          var node = document.createElement("li");
+          var textnode = document.createTextNode("Name: " + userObject.name + " Email: " + userObject.email + " About: " + userObject.about);
+          node.appendChild(textnode);
+          document.getElementById("users-list").appendChild(node);
         }
-    )
+      }
+      
+      document.getElementById("postusers").onclick = function(evt) {
+        if (!ws) {
+            return false;
+        }
+        var body = JSON.stringify(
+          {
+              "name": document.getElementById("name").value,
+              "email": document.getElementById("email").value,
+              "about": document.getElementById("about").value
+          }
+        )
+        ws.send(body);
+        return false;
+      };
+    });
 
   </script>
 </body>

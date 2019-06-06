@@ -44,5 +44,15 @@ func main() {
 	usersGroup := e.Group(GroupBaseURL)
 	route.NewHandler(usersGroup, controller)
 
+	// changeDoc := struct {
+	// 	User user.Model `bson:"fullDocument"`
+	// }{}
+	// var users []*user.Model
+
+	// for repository.ChangeStream.Next(&changeDoc) {
+	// 	users = append(users, &changeDoc.User)
+	// 	fmt.Println(users)
+	// }
+
 	e.Logger.Fatal(e.Start(config.ServiceHost))
 }

@@ -2,12 +2,11 @@ package route
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/atlanhq/sc-go-edge/module/user"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/pradeepgangwar/go-websocket/controller"
+	"github.com/pradeepgangwar/go-websocket/user"
 )
 
 type handler struct {
@@ -27,37 +26,6 @@ func NewHandler(g *echo.Group, controller *controller.Controller) {
 	g.GET("/add", handler.UsersGet)
 }
 
-// func (h *handler) UserPost(c echo.Context) error {
-
-// 	var model POSTRequest
-
-// 	// Binding
-// 	if err := c.Bind(&model); err != nil {
-// 		c.Logger().Error(err.Error())
-// 		return utils.ThrowError(c, common.BIND_ERROR, "")
-// 	}
-
-// 	if ok, err := model.IsPostRequestValid(); !ok {
-// 		c.Logger().Error(err.Error())
-// 	}
-
-// 	// Get Context
-// 	ctx := c.Request().Context()
-// 	if ctx == nil {
-// 		ctx = context.Background()
-// 	}
-
-// 	userModel := user.NewModel(model.Name, model.Email, model.About)
-
-// 	_, err := h.Controller.New(ctx, userModel)
-// 	if err != nil {
-// 		c.Logger().Error(err.Error())
-// 		return utils.ThrowError(c, common.SMS_CLIENT_ERROR, "")
-// 	}
-
-// 	return c.JSON(http.StatusOK, userModel)
-// }
-
 func (h *handler) UsersGet(c echo.Context) error {
 
 	ctx := c.Request().Context()
@@ -71,21 +39,40 @@ func (h *handler) UsersGet(c echo.Context) error {
 	}
 	defer ws.Close()
 
-	var user user.Model
+	allusers := h.Controller.AllUser(ctx)
+
+	// Write
+	err = ws.WriteJSON(allusers)
+	if err != nil {
+		c.Logger().Error(err)
+	}
 
 	for {
-		// Write
-		err := ws.WriteMessage(websocket.TextMessage, []byte("Hello, Client!"))
+		var newUser user.Model
+
+		// Read
+		err = ws.ReadJSON(&newUser)
 		if err != nil {
 			c.Logger().Error(err)
 		}
 
-		// Read
-		msg := ws.ReadJSON(&user)
-		fmt.Println(msg)
+		err = h.Controller.NewUser(ctx, newUser)
 		if err != nil {
 			c.Logger().Error(err)
 		}
-		fmt.Printf("%s\n", msg)
+
+		changeDoc := struct {
+			User user.Model `bson:"fullDocument"`
+		}{}
+		var users []*user.Model
+
+		for h.Controller.Repo.ChangeStream.Next(&changeDoc) {
+			users = append(users, &changeDoc.User)
+		}
+
+		err = ws.WriteJSON(users)
+		if err != nil {
+			c.Logger().Error(err)
+		}
 	}
 }

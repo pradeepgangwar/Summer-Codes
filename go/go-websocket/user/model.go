@@ -10,9 +10,10 @@ import (
 // Model Represents user model
 type Model struct {
 	bongo.DocumentBase `bson:"inline"`
-	Name               string `json:"name" bson:"name"`
-	Email              string `json:"email" bson:"email"`
-	About              string `json:"about" bson:"about"`
+	ID                 bson.ObjectId `bson:"_id,omitempty" json:"id"`
+	Name               string        `json:"name" bson:"name"`
+	Email              string        `json:"email" bson:"email"`
+	About              string        `json:"about" bson:"about"`
 }
 
 // NewModel : returns new Model

@@ -7,19 +7,22 @@ import (
 	"github.com/pradeepgangwar/go-websocket/boot"
 	"github.com/pradeepgangwar/go-websocket/repo"
 	"github.com/pradeepgangwar/go-websocket/user"
+	"github.com/pradeepgangwar/go-websocket/websocket"
 )
 
 // Controller contains the repo and timeout information
 type Controller struct {
-	Repo    *repo.MongoRepo
-	Timeout time.Duration
+	Repo      *repo.MongoRepo
+	Timeout   time.Duration
+	WebSocket *websocket.WebSocket
 }
 
 // NewController makes new struct
 func NewController(config *boot.Config, repo *repo.MongoRepo) *Controller {
 	timeout := time.Duration(config.ContextTimeout) * time.Second
 	return &Controller{
-		repo, timeout,
+		Repo:    repo,
+		Timeout: timeout,
 	}
 }
 

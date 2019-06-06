@@ -44,15 +44,24 @@ func main() {
 	usersGroup := e.Group(GroupBaseURL)
 	route.NewHandler(usersGroup, controller)
 
+	go e.Logger.Fatal(e.Start(config.ServiceHost))
+
+	// for {
+	// 	fmt.Println("Hello")
+	// }
+	// Track changes through Mongo Change Stream
 	// changeDoc := struct {
 	// 	User user.Model `bson:"fullDocument"`
 	// }{}
 	// var users []*user.Model
 
-	// for repository.ChangeStream.Next(&changeDoc) {
+	// for h.Controller.Repo.ChangeStream.Next(&changeDoc) {
 	// 	users = append(users, &changeDoc.User)
-	// 	fmt.Println(users)
 	// }
 
-	e.Logger.Fatal(e.Start(config.ServiceHost))
+	// err = ws.WriteJSON(users)
+	// if err != nil {
+	// 	c.Logger().Error(err)
+	// }
+	// Writing through mongo change stream ends here
 }

@@ -37,6 +37,8 @@
       uri += loc.pathname + 'add';
 
       ws = new WebSocket(uri)
+
+      var users = []
     
       ws.onopen = function() {
         document.getElementById("output").innerHTML = "Connected to websocket server";
@@ -54,17 +56,15 @@
         var userObject = JSON.parse(evt.data);
         if (userObject.length) {
           for (var i=0; i<userObject.length; i++) {
-            var node = document.createElement("li");
-            var textnode = document.createTextNode("Name: " + userObject[i].name + " Email: " + userObject[i].email + " About: " + userObject[i].about);
-            node.appendChild(textnode);
-            document.getElementById("users-list").appendChild(node);
+            users = users.filter(function (item) { return item.id !== userObject[i].id})
+            users.push(userObject[i]);
           }
         } else {
-          var node = document.createElement("li");
-          var textnode = document.createTextNode("Name: " + userObject.name + " Email: " + userObject.email + " About: " + userObject.about);
-          node.appendChild(textnode);
-          document.getElementById("users-list").appendChild(node);
+          users = users.filter(function (item) { return item.id !== userObject.id})
+          users.push(userObject);
         }
+        users.sort((a, b) => (a.id).localeCompare(b.id));
+        updateUI(users)
       }
       
       document.getElementById("postusers").onclick = function(evt) {
@@ -81,6 +81,22 @@
         ws.send(body);
         return false;
       };
+
+      function updateUI(users) {
+        e = document.getElementById("users-list")
+        var child = e.lastElementChild;  
+        while (child) { 
+            e.removeChild(child); 
+            child = e.lastElementChild; 
+        } 
+        for (var i=0; i<users.length; i++) {
+          var node = document.createElement("li");
+          var textnode = document.createTextNode("Name: " + users[i].name + " Email: " + users[i].email + " About: " + users[i].about);
+          node.appendChild(textnode);
+          document.getElementById("users-list").appendChild(node);
+        }
+      }
+
     });
 
   </script>

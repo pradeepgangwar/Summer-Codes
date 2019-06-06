@@ -1,11 +1,24 @@
 package websocket
 
 import (
+	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/pradeepgangwar/go-websocket/repo"
 	"github.com/pradeepgangwar/go-websocket/user"
 )
+
+// DocumentID :
+type DocumentID struct {
+	ID bson.ObjectId `bson:"_id" json:"id"`
+}
+
+// ChangeDoc :
+type ChangeDoc struct {
+	ID        DocumentID `bson:"documentKey" json:"id"`
+	User      user.Model `bson:"fullDocument" json:"user"`
+	Operation string     `bson:"operationType" json:"operation"`
+}
 
 var (
 	upgrader = websocket.Upgrader{}
@@ -39,15 +52,9 @@ func (w *WebSocket) NewUser() user.Model {
 // Listen this listens for the change in the mongo
 func (w *WebSocket) Listen(repo *repo.MongoRepo) {
 	for {
-		changeDoc := struct {
-			User user.Model `bson:"fullDocument"`
-		}{}
-		var newusers []*user.Model
-		for repo.ChangeStream.Next(&changeDoc) {
-			newusers = append(newusers, &changeDoc.User)
-		}
-		if len(newusers) > 0 {
-			w.WebSocket.WriteJSON(newusers)
+		var changedoc *ChangeDoc
+		for repo.ChangeStream.Next(&changedoc) {
+			w.WebSocket.WriteJSON(changedoc)
 		}
 	}
 }

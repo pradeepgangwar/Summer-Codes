@@ -54,17 +54,30 @@
 
       ws.onmessage = function(evt) {
         var userObject = JSON.parse(evt.data);
-        if (userObject.length) {
-          for (var i=0; i<userObject.length; i++) {
-            users = users.filter(function (item) { return item.id !== userObject[i].id})
-            users.push(userObject[i]);
+        if (userObject.hasOwnProperty('operation')) {
+          if (userObject.operation === "delete") {
+            users = users.filter(function (item) { return item.id !== userObject.id.id})
+            users.sort((a, b) => (a.id).localeCompare(b.id));
+            updateUI(users)
+          } else {
+            users = users.filter(function (item) { return item.id !== userObject.id.id})
+            users.push(userObject.user);
+            users.sort((a, b) => (a.id).localeCompare(b.id));
+            updateUI(users)
           }
         } else {
-          users = users.filter(function (item) { return item.id !== userObject.id})
-          users.push(userObject);
+          if (userObject.length) {
+            for (var i=0; i<userObject.length; i++) {
+              users = users.filter(function (item) { return item.id !== userObject[i].id})
+              users.push(userObject[i]);
+            }
+          } else {
+            users = users.filter(function (item) { return item.id !== userObject.id})
+            users.push(userObject);
+          }
+          users.sort((a, b) => (a.id).localeCompare(b.id));
+          updateUI(users)
         }
-        users.sort((a, b) => (a.id).localeCompare(b.id));
-        updateUI(users)
       }
       
       document.getElementById("postusers").onclick = function(evt) {
@@ -95,7 +108,7 @@
           node.appendChild(textnode);
           document.getElementById("users-list").appendChild(node);
         }
-      }
+      };
 
     });
 

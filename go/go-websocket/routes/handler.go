@@ -61,6 +61,7 @@ func (h *handler) UsersGet(c echo.Context) error {
 			c.Logger().Error(err)
 		}
 
+		// Track changes through Mongo Change Stream
 		changeDoc := struct {
 			User user.Model `bson:"fullDocument"`
 		}{}
@@ -74,5 +75,6 @@ func (h *handler) UsersGet(c echo.Context) error {
 		if err != nil {
 			c.Logger().Error(err)
 		}
+		// Writing through mongo change stream ends here
 	}
 }
